@@ -54,6 +54,10 @@ export default {
           );
         },
         (error_message) => {
+          this.getWeatherData(
+            21.1938,
+            81.3509
+          );
           console.error(
             "An error has occured while retrieving location",
             error_message
