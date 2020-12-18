@@ -50,6 +50,7 @@ export default {
 .location {
   position: relative;
   display: flex;
+  align-items: center;
   width: 100%;
   margin: 2% 4%;
       margin-top: 40px;
@@ -58,6 +59,8 @@ export default {
   width: 30px;
   position: absolute;
   margin: 2.5%;
+  width: 10%;
+    max-width: 30px;
 }
 .pin {
   left: 0;
@@ -90,5 +93,10 @@ export default {
 }
 .container {
   width: 100%;
+}
+@media only screen and (max-width: 470px) {
+.searchlocation{
+  padding: 0 13%;
+}
 }
 </style>

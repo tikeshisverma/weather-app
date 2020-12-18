@@ -37,7 +37,11 @@ export default {
     };
   },
   mounted() {
-    if ("geolocation" in navigator) {
+    this.initGPSRequest();
+  },
+  methods: {
+    initGPSRequest(){
+      if ("geolocation" in navigator) {
       navigator.geolocation.getCurrentPosition(
         (position) => {
           this.currentLocation = {
@@ -59,8 +63,7 @@ export default {
     } else {
       console.log("geolocation is not enabled on this browser");
     }
-  },
-  methods: {
+    },
     handleSelect({ lat, lon }) {
       this.getWeatherData(lat, lon);
     },
@@ -100,7 +103,6 @@ export default {
     },
 
     formatDateTime(time, temp) {
-      // console.log(time)
       const dateTime = new Date(0);
       dateTime.setUTCSeconds(time);
       return `${this.fahrenheittoCelcius(temp)}°
@@ -124,7 +126,6 @@ export default {
               ];
             }),
           ];
-          // console.log(this.chartData)
           this.pressure = res.daily.map((d) => d.pressure);
           this.humidity = res.daily.map((d) => d.humidity);
           this.sunRise = res.daily.map((s) => s.sunrise);
@@ -132,7 +133,6 @@ export default {
 
           this.tempreture = this.fahrenheittoCelcius(res.current.temp);
 
-          // console.log(res)
         });
     },
   },
@@ -152,121 +152,20 @@ export default {
   display: flex;
   flex-direction: column;
   align-items: center;
-  max-width: 700px;
+  width:80%;
+  max-width: 600px;
   margin: auto;
   box-shadow: 0 15px 30px 5px rgba(0, 0, 0, 0.3);
   border-radius: 40px;
 }
-
-button {
-  background: white;
+@media only screen and (max-width: 600px) {
+.wrapper {
+  box-shadow: none;
+  width:100%;
 }
-.days {
-  display: flex;
-  max-width: 600px;
-  overflow: scroll;
-  padding-top: 2%;
+.detail-wrapper h1{
+  font-size: 4em;
 }
-.day {
-  border: 2px solid transparent;
-  text-align: center;
-}
-.active {
-  border: 2px solid #3daae8;
 }
 
-.day:focus {
-  outline: none;
-}
-.day-temp .bold,
-.day-name {
-  font-weight: 600;
-}
-.day-temp .light,
-.day-type {
-  color: darkgray;
-  font-weight: 600;
-}
-.day:hover .day-temp .light,
-.day:hover .day-type {
-  color: #e8e8e8;
-}
-.day:hover {
-  color: white;
-  background: #728f99;
-}
-
-.day-and-temp,
-.day-type {
-  width: 100%;
-}
-.day-and-temp,
-.day {
-  display: flex;
-  flex-direction: column;
-}
-.info-wrapper {
-  display: flex;
-  justify-content: space-between;
-  margin: 3% 0;
-  margin-top: 10%;
-}
-.light-text {
-  font-weight: 300;
-}
-.info-card {
-  color: black;
-  width: 170px;
-  background-color: #f5fafe;
-  border-radius: 4%;
-  font-size: 125%;
-  font-weight: 600;
-  text-align: left;
-  padding: 3%;
-}
-h1 {
-  text-align: initial;
-  font-size: 100px;
-  color: black;
-}
-.graph {
-  overflow-x: scroll;
-  overflow-y: hidden;
-}
-.graph > div {
-  margin-left: -71%;
-}
-.detail-wrapper {
-  margin-left: 12%;
-  margin-right: 12%;
-  margin-top: 5%;
-  margin-bottom: 5%;
-  padding: 2%;
-  border-radius: 3%;
-  box-shadow: 0 15px 30px 5px rgba(0, 0, 0, 0.3);
-  max-width: 600px;
-}
-.detail-wrapper h1 {
-  margin: 2% 0;
-}
-.sun-status {
-  width: 100%;
-}
-.sun-timing {
-  display: flex;
-  justify-content: space-between;
-}
-.sunrise,
-.sunset {
-  display: flex;
-  flex-direction: column;
-}
-.title {
-  font-weight: 600;
-  color: black;
-}
-.timing {
-  color: darkgray;
-  font-weight: 600;
-}
 </style>

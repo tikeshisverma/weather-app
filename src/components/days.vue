@@ -55,3 +55,54 @@ return{
     }
 }
 </script>
+<style scoped>
+
+button {
+  background: white;
+}
+.days {
+  display: flex;
+  width:100%;
+  max-width: 600px;
+  overflow: scroll;
+  padding-top: 2%;
+}
+.day {
+  border: 2px solid transparent;
+  text-align: center;
+}
+.active {
+  border: 2px solid #3daae8;
+}
+
+.day:focus {
+  outline: none;
+}
+.day-temp .bold,
+.day-name {
+  font-weight: 600;
+}
+.day-temp .light,
+.day-type {
+  color: darkgray;
+  font-weight: 600;
+}
+.day:hover .day-temp .light,
+.day:hover .day-type {
+  color: #e8e8e8;
+}
+.day:hover {
+  color: white;
+  background: #728f99;
+}
+
+.day-and-temp,
+.day-type {
+  width: 100%;
+}
+.day-and-temp,
+.day {
+  display: flex;
+  flex-direction: column;
+}
+</style>
