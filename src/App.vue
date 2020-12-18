@@ -2,34 +2,7 @@
   <div id="app">
     <div class="wrapper" v-if="selectedTemp&& selectedTemp.temp">
       <location msg="test" @onSelect="handleSelect" />
-      <div class="days">
-        <button
-          
-          v-for="(dailyTemp, index) in tempratureData.daily"
-          :class="[ dailyTemp.dt==selectedTemp.dt?'active':'','day']"
-          :key="index"
-          @click="updateChart(dailyTemp)"
-        >
-          <div class="day-and-temp">
-            <div class="day-name">{{ getDayName(dailyTemp.dt) }}</div>
-            <div class="day-temp">
-              <span class="bold"
-                >{{ fahrenheittoCelcius(dailyTemp.temp.max) }}°</span
-              >
-              <span class="light">
-                {{ fahrenheittoCelcius(dailyTemp.temp.min) }}°
-              </span>
-            </div>
-          </div>
-          <img
-            :src="getImageURL(dailyTemp.weather[0].icon)"
-            alt="dailyTemp.weather[0].main"
-          />
-          <div class="day-type">
-            {{ dailyTemp.weather[0].main }}
-          </div>
-        </button>
-      </div>
+     <days :tempratureData="tempratureData" @onDaySelect="handleDaySelect"/>
       <div class="detail-wrapper">
         <h1>
           {{this.fahrenheittoCelcius(selectedTemp.temp.day) }}°C
@@ -72,10 +45,12 @@
 
 <script>
 import location from "./components/location";
+import days from "./components/days";
 export default {
   name: "App",
   components: {
     location,
+    days,
   },
   data() {
     return {
@@ -156,6 +131,9 @@ export default {
   methods: {
     handleSelect({ lat, lon }) {
       this.getWeatherData(lat, lon);
+    },
+    handleDaySelect(data){
+this.selectedTemp = data
     },
     fahrenheittoCelcius(temp) {
       return parseFloat(temp - 273.15).toFixed(0);
