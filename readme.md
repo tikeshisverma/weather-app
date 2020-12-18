@@ -1,6 +1,6 @@
 # Weather Report App
 This app is build using vue.js it uses openweathermap api(https://openweathermap.org/).
-
+Demo: http://weather-app-report-2020-tikesh.s3-website.ap-south-1.amazonaws.com/
 ## Project setup
 ```
 npm install
