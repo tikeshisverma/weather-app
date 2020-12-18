@@ -1,7 +1,7 @@
 <template>
      <div class="days">
         <button
-          
+        
           v-for="(dailyTemp, index) in tempratureData.daily"
           :class="[ dailyTemp.dt==selectedTemp.dt?'active':'','day']"
           :key="index"
@@ -31,10 +31,9 @@
 <script>
 export default {
     name:"days",
-    props:["tempratureData"],
+    props:["tempratureData", "selectedTemp"],
     data(){
 return{
-    selectedTemp:{},
 
 }
     },
@@ -43,9 +42,7 @@ return{
       return parseFloat(temp - 273.15).toFixed(0);
     },
     updateChart(temp) {
-      console.log('temp -->', temp)
-      this.selectedTemp = temp
-      this.$emit("onDaySelect",this.selectedTemp)
+      this.$emit("onDaySelect", temp)
     },
      getDayName(time) {
       const dateTime = new Date(0);

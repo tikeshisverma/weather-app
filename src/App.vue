@@ -1,44 +1,13 @@
 <template>
   <div id="app">
-    <div class="wrapper" v-if="selectedTemp&& selectedTemp.temp">
+    <div class="wrapper" v-if="selectedTemp && selectedTemp.temp">
       <location msg="test" @onSelect="handleSelect" />
-     <days :tempratureData="tempratureData" @onDaySelect="handleDaySelect"/>
-      <div class="detail-wrapper">
-        <h1>
-          {{this.fahrenheittoCelcius(selectedTemp.temp.day) }}°C
-          <img :src="getImageURL(tempratureData.daily[0].weather[0].icon)" />
-        </h1>
-        <div class="graph">
-          <GChart type="LineChart" :data="chartData" :options="chartOptions" />
-        </div>
-        <div class="info-wrapper">
-          <div class="info-card">
-            Pressure
-            <div class="light-text">{{ selectedTemp.pressure }} hpa</div>
-          </div>
-          <div class="info-card">
-            Humidity
-            <div class="light-text">{{ selectedTemp.humidity }}%</div>
-          </div>
-        </div>
-        <div class="sun-timing">
-          <div class="sunrise">
-            <span class="title">Sunrise</span>
-            <span class="timing">{{getTimeAMPM(selectedTemp.sunrise)}}</span>
-          </div>
-          <div class="sunset">
-            <span class="title">Sunset</span>
-            <span class="timing">{{getTimeAMPM(selectedTemp.sunset)}}</span>
-          </div>
-        </div>
-        <div class="sun-status">
-          <GChart
-            type="LineChart"
-            :data="chartDataSun"
-            :options="chartOptionsSun"
-          />
-        </div>
-      </div>
+      <days :tempratureData="tempratureData" @onDaySelect="handleDaySelect" :selectedTemp="selectedTemp" />
+      <card
+        :selectedTemp="selectedTemp"
+        :tempratureData="tempratureData"
+        :chartData="getChartData(chartData, selectedTemp)"
+      />
     </div>
   </div>
 </template>
@@ -46,56 +15,25 @@
 <script>
 import location from "./components/location";
 import days from "./components/days";
+import card from "./components/card";
 export default {
   name: "App",
   components: {
     location,
     days,
+    card,
   },
   data() {
     return {
+      initChatData: [["time", "temp", { type: "string", role: "style" }]],
       selectedTemp: {},
       currentLocation: {},
       tempreture: "",
       pressure: "",
       humidity: "",
-      sunRise:"",
-      sunSet:"",
+      sunRise: "",
+      sunSet: "",
       tempratureData: {},
-      initChatData: [["time", "temp", { type: "string", role: "style" }]],
-      chartData: [["time", "temp", { type: "string", role: "style" }]],
-
-      chartOptions: {
-        lineWidth: 3,
-        hAxis: {
-          gridlines: { color: "#ff0", count: 400 },
-          gridlineColor: "#f00",
-        },
-        vAxis: { textPosition: "none", gridlines: { color: "#fff", count: 4 } },
-        curveType: "function",
-        pointSize: 5,
-        legend: "none",
-        colors: ["#3daae8"],
-        width: 5500,
-        height: 300,
-      },
-      chartDataSun: [
-        ["time", "position"],
-        [0, -5],
-        [5, 10],
-        [10, -5],
-      ],
-      chartOptionsSun: {
-        hAxis: {
-          textPosition: "none",
-          gridlines: { color: "#fff", count: 4 },
-          baselineColor: "#fff",
-          gridlineColor: "#fff",
-        },
-        vAxis: { textPosition: "none", gridlines: { color: "#fff", count: 4 } },
-        legend: "none",
-        curveType: "function",
-      },
     };
   },
   mounted() {
@@ -110,12 +48,6 @@ export default {
             this.currentLocation.lat,
             this.currentLocation.lon
           );
-          // console.log(
-          //   "latitude",
-          //   position.coords.latitude,
-          //   "longitude",
-          //   position.coords.longitude
-          // );
         },
         (error_message) => {
           console.error(
@@ -132,8 +64,28 @@ export default {
     handleSelect({ lat, lon }) {
       this.getWeatherData(lat, lon);
     },
-    handleDaySelect(data){
-this.selectedTemp = data
+    getChartData(chartData, selectedTemp) {
+      const { dt } = selectedTemp;
+      const now = new Date();
+      const nowInSeconds = now.getTime() / 1000 - now.getHours()*60*60;
+      const oneDayInSeconds = 24 * 60 * 60;
+      const twoDaysInSeconds = oneDayInSeconds * 2;
+      const tomorrow = nowInSeconds + oneDayInSeconds;
+      const dayAfterTomorrow = nowInSeconds + twoDaysInSeconds;
+      const columnValue = chartData[0];
+      let newChartData = [columnValue,['',0,'']];
+
+      if (dt > dayAfterTomorrow) {
+        return newChartData;
+      } else if (dt > tomorrow && dt < dayAfterTomorrow) {
+        newChartData = [columnValue, ...chartData.slice(24)];
+      } else {
+        newChartData = [columnValue, ...chartData.slice(1, 24)];
+      }
+      return newChartData
+    },
+    handleDaySelect(data) {
+      this.selectedTemp = data;
     },
     fahrenheittoCelcius(temp) {
       return parseFloat(temp - 273.15).toFixed(0);
@@ -146,11 +98,7 @@ this.selectedTemp = data
       dateTime.setUTCSeconds(time);
       return dateTime.toString("en-US").split(" ")[0];
     },
-    getTimeAMPM(time) {
-      const dateTime = new Date(0);
-      dateTime.setUTCSeconds(time);
-      return dateTime.toLocaleString("en-US", { hour: "numeric", hour12: true, minute:"numeric" })
-    },
+
     formatDateTime(time, temp) {
       // console.log(time)
       const dateTime = new Date(0);
@@ -165,7 +113,7 @@ this.selectedTemp = data
         .then((response) => response.json())
         .then((res) => {
           this.tempratureData = res;
-          this.selectedTemp = res.daily[0]
+          this.selectedTemp = res.daily[0];
           this.chartData = [
             ...this.initChatData,
             ...res.hourly.map((t) => {
@@ -182,15 +130,10 @@ this.selectedTemp = data
           this.sunRise = res.daily.map((s) => s.sunrise);
           this.sunSet = res.daily.map((s) => s.sunset);
 
-
           this.tempreture = this.fahrenheittoCelcius(res.current.temp);
 
           // console.log(res)
         });
-    },
-    updateChart(temp) {
-      console.log('temp -->', temp)
-      this.selectedTemp = temp
     },
   },
 };
@@ -212,7 +155,7 @@ this.selectedTemp = data
   max-width: 700px;
   margin: auto;
   box-shadow: 0 15px 30px 5px rgba(0, 0, 0, 0.3);
-border-radius: 40px;
+  border-radius: 40px;
 }
 
 button {
@@ -228,8 +171,8 @@ button {
   border: 2px solid transparent;
   text-align: center;
 }
-.active{
-  border:2px solid #3daae8;
+.active {
+  border: 2px solid #3daae8;
 }
 
 .day:focus {
@@ -309,20 +252,21 @@ h1 {
 .sun-status {
   width: 100%;
 }
-.sun-timing{
+.sun-timing {
   display: flex;
-    justify-content: space-between;
+  justify-content: space-between;
 }
-.sunrise, .sunset{
+.sunrise,
+.sunset {
   display: flex;
-    flex-direction: column;
+  flex-direction: column;
 }
-.title{
+.title {
   font-weight: 600;
   color: black;
 }
-.timing{
-  color:darkgray;
+.timing {
+  color: darkgray;
   font-weight: 600;
 }
 </style>
